@@ -12,6 +12,13 @@ const queryMistral = async (prompt, userMessage) => {
       temperature: 0.7,
       max_tokens: 500
     });
+
+    if (process.env.DEBUG_MODE === 'true') {
+      console.debug('[Mistral Request]', { prompt, userMessage });
+    }
+    if (process.env.DEBUG_MODE === 'true') {
+      console.debug('[Mistral Response]', response.data);
+    }
     
     if (!response.data.choices?.[0]?.message?.content) {
       throw new Error('Respuesta inesperada de la API');
@@ -26,6 +33,8 @@ const queryMistral = async (prompt, userMessage) => {
     });
     throw new Error("No se pudo generar la respuesta. Por favor, inténtalo de nuevo.");
   }
+
+  
 };
 
 module.exports = { queryMistral };

@@ -10,6 +10,12 @@ const app = express();
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 
+//CORS
+const cors = require('cors');
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || '*'
+}));
+
 // Routes
 app.use('/api', apiRoutes);
 
