@@ -1,21 +1,29 @@
-const express = require('express');
-const cors = require('cors');
-const { handleInboundCall } = require('./controllers/inbound');
 require('dotenv').config();
+const express = require('express');
+const bodyParser = require('body-parser');
+const apiRoutes = require('./routes/apiRoutes');
+const WebSocket = require('ws');
 
 const app = express();
 
 // Middlewares
-app.use(cors({ origin: process.env.ALLOWED_ORIGINS }));
-app.use(express.json());
+app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.post('/api/inbound-call', handleInboundCall);
+app.use('/api', apiRoutes);
+
+// WebSocket setup
+const wss = new WebSocket.Server({ noServer: true });
+app.locals.wss = wss; // Hacer accesible el WebSocketServer
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Something got wrong!');
+  console.error('[APP ERROR]', err.stack);
+  res.status(500).json({ 
+    error: 'Internal Server Error',
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong!'
+  });
 });
 
-module.exports = app;
+module.exports = { app, wss };
